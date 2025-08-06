@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Invitation Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Meeting Invitation Generator</h1>
+            <p>Create personalized Outlook meeting invitations</p>
+        </header>
+
+        <form id="meetingForm" enctype="multipart/form-data">
+            <!-- Recipients Section -->
+            <section class="form-section">
+                <h2>Recipients</h2>
+                <div class="field-group">
+                    <label for="recipients">Recipients (one per line: email, first name)</label>
+                    <textarea id="recipients" name="recipients" rows="6" placeholder="john.doe@company.com, John&#10;jane.smith@company.com, Jane"></textarea>
+                    <small class="help-text">Enter each recipient on a new line in format: email, first name</small>
+                </div>
+            </section>
+
+            <!-- Meeting Details Section -->
+            <section class="form-section">
+                <h2>Meeting Details</h2>
+                
+                <div class="field-group">
+                    <label for="subject">Subject *</label>
+                    <input type="text" id="subject" name="subject" required placeholder="Enter meeting subject">
+                </div>
+
+                <div class="datetime-group">
+                    <div class="field-group">
+                        <label for="startDateTime">Start Date & Time *</label>
+                        <input type="datetime-local" id="startDateTime" name="startDateTime" required>
+                    </div>
+                    
+                    <div class="field-group">
+                        <label for="endDateTime">End Date & Time *</label>
+                        <input type="datetime-local" id="endDateTime" name="endDateTime" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="Meeting room, address, or online link">
+                </div>
+
+                <div class="field-group">
+                    <label for="organizer">Organizer Email</label>
+                    <input type="email" id="organizer" name="organizer" placeholder="organizer@company.com">
+                    <small class="help-text">Optional: Used as the "From" address in the invite</small>
+                </div>
+            </section>
+
+            <!-- Meeting Body Section -->
+            <section class="form-section">
+                <h2>Meeting Body</h2>
+                
+                <div class="body-options">
+                    <div class="option-tabs">
+                        <button type="button" class="tab-btn active" data-tab="upload">Upload Text</button>
+                        <button type="button" class="tab-btn" data-tab="generate">Generate Automatically</button>
+                        <button type="button" class="tab-btn" data-tab="write">Write My Own</button>
+                        <button type="button" class="tab-btn" data-tab="template">Use Template</button>
+                    </div>
+
+                    <!-- Upload Body Text -->
+                    <div class="tab-content active" id="upload-tab">
+                        <div class="field-group">
+                            <label for="bodyFile">Upload Body Text</label>
+                            <input type="file" id="bodyFile" name="bodyFile" accept=".txt,.doc,.docx,.pdf">
+                            <small class="help-text">Supported formats: .txt, .doc, .docx, .pdf</small>
+                        </div>
+                        <div id="filePreview" class="preview-area hidden">
+                            <h4>File Preview:</h4>
+                            <div id="fileContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Generate Automatically -->
+                    <div class="tab-content" id="generate-tab">
+                        <div class="field-group">
+                            <label for="apiEndpoint">API Endpoint (HTTP GET)</label>
+                            <input type="url" id="apiEndpoint" name="apiEndpoint" placeholder="https://api.example.com/generate-text">
+                            <button type="button" id="generateBtn" class="btn-secondary">Generate Text</button>
+                        </div>
+                        <div id="generatedPreview" class="preview-area hidden">
+                            <h4>Generated Text:</h4>
+                            <div id="generatedContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Write My Own -->
+                    <div class="tab-content" id="write-tab">
+                        <div class="field-group">
+                            <label for="bodyText">Meeting Body</label>
+                            <textarea id="bodyText" name="bodyText" rows="8" placeholder="Enter your meeting description here...">Dear {{name}},
+
+You are invited to attend our upcoming meeting.
+
+Meeting Details:
+- Subject: [Subject will be filled automatically]
+- Date & Time: [Date will be filled automatically] 
+- Location: [Location will be filled automatically]
+
+Please confirm your attendance.
+
+Best regards,
+Meeting Organizer</textarea>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="isHtml" name="isHtml">
+                            <label for="isHtml">Content is HTML formatted</label>
+                            <small class="help-text">Check this if you're pasting Outlook-style HTML content</small>
+                        </div>
+                    </div>
+
+                    <!-- Use Saved Template -->
+                    <div class="tab-content" id="template-tab">
+                        <div class="field-group">
+                            <label for="templateSelect">Select Template</label>
+                            <select id="templateSelect" name="templateSelect">
+                                <option value="">-- Select a template --</option>
+                            </select>
+                            <button type="button" id="refreshTemplates" class="btn-secondary">Refresh</button>
+                        </div>
+                        <div id="templatePreview" class="preview-area hidden">
+                            <h4>Template Preview:</h4>
+                            <div id="templateContent"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Template Section -->
+                <div class="save-template-section">
+                    <h3>Save as Template</h3>
+                    <div class="save-template-group">
+                        <input type="text" id="templateName" name="templateName" placeholder="Enter template name">
+                        <button type="button" id="saveTemplateBtn" class="btn-secondary">Save Template</button>
+                    </div>
+                    <small class="help-text">Save the current body text as a reusable template</small>
+                </div>
+            </section>
+
+            <!-- Submit Section -->
+            <section class="form-section">
+                <div class="submit-group">
+                    <button type="submit" class="btn-primary">Generate Meeting Invitations</button>
+                    <button type="reset" class="btn-secondary">Reset Form</button>
+                </div>
+            </section>
+        </form>
+
+        <!-- Status Messages -->
+        <div id="statusMessage" class="status-message hidden"></div>
+        
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Generating meeting invitations...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
